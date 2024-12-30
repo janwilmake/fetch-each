@@ -9,12 +9,19 @@ export type RequestJson = {
 /**
  * Fetch without hitting fetch concurrency limits by fetching via a queue. Array must be an array of URLs or RequestJson's for it to be executed
  */
-export const fetchEach = async <T, U = any>(
+export const fetchEach = async <U = any>(
   /** JSON serializable array */
   array: (string | RequestJson)[],
   /** Pass a logger to view updates */
   config: { apiKey: string; basePath: string; log?: (log: string) => void },
-): Promise<U[]> => {
+): Promise<
+  {
+    result?: U;
+    error?: string;
+    status: number;
+    headers: { [name: string]: string };
+  }[]
+> => {
   const requestJsons = array.map((item) =>
     typeof item === "string" ? { url: item } : item,
   );

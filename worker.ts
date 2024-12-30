@@ -22,6 +22,7 @@ type FetchItem = {
 
 type ResponseItem = {
   id: number;
+  headers?: string;
   status: number;
   error?: string;
   result?: any;
@@ -115,6 +116,8 @@ export default {
         let status;
         let error;
         let result;
+        const responseHeaders: { [name: string]: string } = {};
+
         try {
           const { url, body, headers, method } = item;
           // execute request
@@ -135,6 +138,10 @@ export default {
 
           status = response.status;
           const text = await response.text();
+
+          response.headers.forEach(
+            (value, key) => (responseHeaders[key] = value),
+          );
 
           if (response.status === 200) {
             result = tryParseJson(text) || text || undefined;
@@ -159,6 +166,9 @@ export default {
             body: JSON.stringify({
               id: index,
               status,
+              headers: Object.keys(responseHeaders).length
+                ? JSON.stringify(responseHeaders)
+                : undefined,
               error,
               result,
               created_at: Date.now(),
@@ -201,6 +211,7 @@ export class WorkflowDurableObject extends DurableObject<Env> {
           done INTEGER,
           error TEXT,
           result TEXT,
+          headers TEXT,
           created_at INTEGER
         )
       `);
@@ -224,6 +235,7 @@ export class WorkflowDurableObject extends DurableObject<Env> {
 
               let results;
               let t = 0;
+              let updateString;
               let error: string | undefined =
                 "Timeout exceeded: max queue time is 1 day";
 
@@ -240,16 +252,20 @@ export class WorkflowDurableObject extends DurableObject<Env> {
 
                 const done = results.filter((x) => x.done).length;
 
-                controller.enqueue(
-                  encoder.encode(
-                    `event: update\ndata: ${JSON.stringify({
-                      type: "update",
-                      status,
-                      done,
-                    })}\n\n`,
-                  ),
-                );
+                const newUpdateString = JSON.stringify({
+                  type: "update",
+                  status,
+                  done,
+                });
+                if (updateString !== newUpdateString) {
+                  controller.enqueue(
+                    encoder.encode(
+                      `event: update\ndata: ${newUpdateString}\n\n`,
+                    ),
+                  );
+                }
 
+                updateString = newUpdateString;
                 const allDone = results!.filter((x) => x.done).length === count;
                 if (allDone) {
                   error = undefined;
@@ -262,9 +278,13 @@ export class WorkflowDurableObject extends DurableObject<Env> {
 
               const resultArray = results!
                 .sort((a, b) => a.id - b.id)
-                .map(
-                  (item) => tryParseJson(item.result) || item.result || null,
-                );
+                .map((item) => ({
+                  status: item.status,
+                  error: item.error,
+                  headers:
+                    tryParseJson(item.headers) || item.headers || undefined,
+                  result: tryParseJson(item.result) || item.result || null,
+                }));
 
               // Send final result
               controller.enqueue(
@@ -298,12 +318,13 @@ export class WorkflowDurableObject extends DurableObject<Env> {
         const data: ResponseItem = await request.json();
 
         this.sql.exec(
-          `INSERT OR REPLACE INTO responses (id, status, done, error, result, created_at) VALUES (?, ?, ?, ?, ?, ?)`,
+          `INSERT OR REPLACE INTO responses (id, status, done, error, result, headers, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
           data.id,
           data.status,
           data.done,
           data.error,
           JSON.stringify(data.result),
+          data.headers ? data.headers : null,
           data.created_at,
         );
 

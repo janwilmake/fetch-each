@@ -296,9 +296,6 @@ export class WorkflowDurableObject extends DurableObject<Env> {
                 ),
               );
 
-              // Add small delay to ensure result is sent
-              //  await new Promise((resolve) => setTimeout(resolve, 100));
-
               controller.close();
             } catch (e: any) {
               console.error("crash in stream", e);

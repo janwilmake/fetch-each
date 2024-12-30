@@ -3,6 +3,7 @@ import { DurableObject } from "cloudflare:workers";
 interface Env {
   workflow_durable_object: DurableObjectNamespace<WorkflowDurableObject>;
   workflow_queue: Queue;
+  SECRET: string;
 }
 
 export type RequestJson = {
@@ -57,8 +58,8 @@ export default {
         .get("Authorization")
         ?.slice("Bearer ".length);
 
-      if (!apiKey) {
-        return new Response("Authorization required", { status: 401 });
+      if (!apiKey || apiKey !== env.SECRET) {
+        return new Response("Unauthorized", { status: 401 });
       }
 
       const array: any[] = await request.json();
@@ -86,15 +87,12 @@ export default {
       const doId = env.workflow_durable_object.idFromName(durableObjectName);
       const do_instance = env.workflow_durable_object.get(doId);
 
-      console.log("awaiting readyness");
       // await the DO until all items are done
       const response = await do_instance.fetch(
         new Request(url.origin + "/?count=" + array.length, { method: "GET" }),
       );
 
       const result = await response.json();
-
-      console.log("all done!");
 
       return new Response(JSON.stringify(result, undefined, 2), {
         status: response.status,

@@ -82,4 +82,4 @@ In this example a new utility function `fetchEach` is introduced as a new syntac
 
 ![](public/graph.drawio.svg)
 
-fetch-each allows creating queues while you can still get still await the response of every item and execute the rest of your code after. This creates a much simpler way to do workflows. Because of the ability of queues to scale in parallel, fetch-each makes expensive operations much faster to complete in a worker environment. For example, the above example could take just 5 seconds.
+fetch-each allows creating queues while you can still get still await the response of every item and execute the rest of your code after. This creates a much simpler way to do workflows. Because of the ability of queues to scale in parallel, fetch-each makes expensive operations much faster to complete in a worker environment. For example, I've successfully ran 10k LLM prompts in under 3 minutes with this single-queue setup.

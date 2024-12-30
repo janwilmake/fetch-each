@@ -59,7 +59,7 @@ export const fetchEach = async <U = any>(
         const eventType = line.slice(7);
         const data = lines[lines.indexOf(line) + 1];
         if (!data?.startsWith("data: ")) {
-          console.log("unknown event", data);
+          console.log("unknown event", lines);
           continue;
         }
         const parsed = JSON.parse(data.slice(6));

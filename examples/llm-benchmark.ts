@@ -50,6 +50,20 @@ const models = [
     llmModelName: "",
   },
 ];
+
+const animals = [
+  "cat",
+  "dog",
+  "fish",
+  "kangaroo",
+  "monkey",
+  "dolphin",
+  "giraffe",
+  "rhino",
+  "dinosaur",
+  "rabbit",
+];
+
 export const test = async () => {
   const modelResults = await Promise.all(
     models.map(async (model) => {
@@ -64,7 +78,7 @@ export const test = async () => {
           llmBasePath: "https://api.deepseek.com/v1",
           llmModelName: "deepseek-chat",
         },
-        ["cat", "dog"].map((animal) => [
+        animals.map((animal) => [
           {
             role: "user",
             content: `Return a name, description, category, and commonly found country for animal: ${animal}

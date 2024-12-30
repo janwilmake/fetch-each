@@ -221,6 +221,12 @@ export class WorkflowDurableObject extends DurableObject<Env> {
     }
   }
 
+  async alarm(): Promise<void> {
+    // Clean up the DO after all work is done
+    await this.state.storage.deleteAll();
+    await this.state.storage.deleteAlarm();
+  }
+
   async fetch(request: Request): Promise<Response> {
     if (request.method === "GET") {
       const isStream = request.headers.get("accept") === "text/event-stream";
@@ -267,7 +273,10 @@ export class WorkflowDurableObject extends DurableObject<Env> {
 
                 updateString = newUpdateString;
                 const allDone = results!.filter((x) => x.done).length === count;
+
                 if (allDone) {
+                  // Set alarm to delete DO after 1 hour
+                  await this.state.storage.setAlarm(Date.now() + 3600000);
                   error = undefined;
                   break;
                 }

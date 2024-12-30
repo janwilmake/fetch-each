@@ -16,10 +16,12 @@ made the first version called `dmap` at https://github.com/codefromanywhere/acti
 
 ✅ ensure chatcomletions post also parses and returns codeblocks
 
-create a wrapper around fetchEach to easily do LLM prompts with POST to catch the codeblock
+✅ create a wrapper around fetchEach to easily do LLM prompts with POST to catch the codeblock
 
-create a benchmark for complex structured output in codeblock across various LLMs with 1000 tries.
+✅ create a benchmark for complex structured output in codeblock across various LLMs with 1000 tries.
 
-ensure the durable objects and queues get cleaned up nicely
+✅ add some example usage to the repo
+
+✅ ensure the durable objects and queues get cleaned up nicely
 
 🤔 may be nice? `fetchEach` with instant 202 and callback

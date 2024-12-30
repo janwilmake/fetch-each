@@ -1,8 +1,6 @@
-# Cloudflare `fetchEach`
+# `fetchEach` - Overcome Max concurrency limit of workers for HTTP requests
 
-`fetchEach` allows executing map functions in a distributed fashion by adding it to a queue and waiting for all results so you're not constrained by memory and other limitations of serverless environments, such as max 6 concurrent fetches.
-
-To accomplish this, fetch-each uses [cloudflare queues](https://developers.cloudflare.com/queues/) together with a [durable object](https://developers.cloudflare.com/durable-objects/), and [deno deploy](https://deno.com/deploy) for evaluating the map function (see [evaloncloud](https://github.com/CodeFromAnywhere/evaloncloud))
+Fetch-each uses [CloudFlare queues](https://developers.cloudflare.com/queues/) together with a [durable object](https://developers.cloudflare.com/durable-objects/), and [deno deploy](https://deno.com/deploy) for evaluating the map function (see [evaloncloud](https://github.com/CodeFromAnywhere/evaloncloud))
 
 Current limitations:
 

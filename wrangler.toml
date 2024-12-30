@@ -4,6 +4,7 @@ main = "worker.ts"
 compatibility_date = "2024-12-27"
 assets = { directory = "./public" }
 routes = [
+  # when hosting this yourself, remove this or exchange it for a domain you use at cloudflare
   { pattern = "fetch-each.actionschema.com", custom_domain = true }
 ]
 

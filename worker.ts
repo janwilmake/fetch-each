@@ -39,7 +39,8 @@ const tryParseJson = (data: any) => {
 
 const shouldRetry = (status: number, attempts: number): boolean => {
   // Retry on server errors (5xx) and certain client errors
-  if (attempts > 10) return false;
+  if (attempts > 25) return false;
+
   if (status >= 500) return true;
   if (status === 429) return true; // Rate limiting
   if (status === 408) return true; // Request timeout
@@ -49,7 +50,7 @@ const shouldRetry = (status: number, attempts: number): boolean => {
 export default {
   fetch: async (request: Request, env: Env) => {
     if (request.method !== "POST") {
-      return new Response("Usage: POST / ({array,code}) => any[]");
+      return new Response("Usage: POST / (array) => any[]");
     }
 
     try {

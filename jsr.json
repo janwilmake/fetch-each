@@ -1,7 +1,0 @@
-{
-  "name": "@cfa/fetch-each",
-  "license": "MIT",
-  "version": "1.0.2",
-  "exports": "./mod.ts",
-  "publish": { "include": ["README.md", "public/graph.drawio.svg", "mod.ts"] }
-}

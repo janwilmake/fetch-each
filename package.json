@@ -6,5 +6,16 @@
     "@cloudflare/workers-types": "^4.20241224.0",
     "typescript": "^5.7.2",
     "wrangler": "^3.99.0"
+  },
+  "name": "@cfa/fetch-each",
+  "license": "MIT",
+  "version": "1.0.3",
+  "exports": "./mod.ts",
+  "publish": {
+    "include": [
+      "README.md",
+      "public/graph.drawio.svg",
+      "mod.ts"
+    ]
   }
 }

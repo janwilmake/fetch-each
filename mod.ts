@@ -14,9 +14,7 @@ export const fetchEach = async <T, U = any>(
   array: (string | RequestJson)[],
   /** Pass a logger to view updates */
   config: { apiKey: string; basePath: string; log?: (log: string) => void },
-): Promise<
-  { result: U; status: number; headers?: { [name: string]: string } }[]
-> => {
+): Promise<U[]> => {
   const requestJsons = array.map((item) =>
     typeof item === "string" ? { url: item } : item,
   );
@@ -33,10 +31,37 @@ export const fetchEach = async <T, U = any>(
     throw new Error(`dmap failed: ${await response.text()}`);
   }
 
-  const result: {
-    result: U;
-    status: number;
-    headers: { [name: string]: string };
-  }[] = await response.json();
-  return result;
+  if (!response.body) {
+    throw new Error("No response body");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+
+    for (const line of lines) {
+      if (line.startsWith("event: ")) {
+        const eventType = line.slice(7);
+        const data = lines[lines.indexOf(line) + 1];
+        if (!data?.startsWith("data: ")) continue;
+
+        const parsed = JSON.parse(data.slice(6));
+        if (eventType === "update" && config.log) {
+          config.log(JSON.stringify(parsed));
+        } else if (eventType === "result") {
+          return parsed.array;
+        }
+      }
+    }
+  }
+
+  throw new Error("Stream ended without result");
 };

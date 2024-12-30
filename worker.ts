@@ -58,7 +58,7 @@ export default {
       const apiKey = request.headers
         .get("Authorization")
         ?.slice("Bearer ".length);
-
+      const accept = request.headers.get("Accept");
       if (!apiKey || apiKey !== env.SECRET) {
         return new Response("Unauthorized", { status: 401 });
       }
@@ -90,14 +90,13 @@ export default {
 
       // await the DO until all items are done
       const response = await do_instance.fetch(
-        new Request(url.origin + "/?count=" + array.length, { method: "GET" }),
+        new Request(url.origin + "/?count=" + array.length, {
+          method: "GET",
+          headers: { accept: accept || "text/event-stream" },
+        }),
       );
 
-      const result = await response.json();
-
-      return new Response(JSON.stringify(result, undefined, 2), {
-        status: response.status,
-      });
+      return response;
     } catch (e: any) {
       console.error("Something went wrong", e);
       return new Response("Something went wrong: " + e.message, {
@@ -213,55 +212,85 @@ export class WorkflowDurableObject extends DurableObject<Env> {
 
   async fetch(request: Request): Promise<Response> {
     if (request.method === "GET") {
-      try {
-        const url = new URL(request.url);
-        const count = Number(url.searchParams.get("count"));
+      const isStream = request.headers.get("accept") === "text/event-stream";
 
-        let t = 0;
-        let error: string | undefined =
-          "Timeout exceeded: max queue time is 1 day";
-        while (t <= 86400) {
-          // wait until all is done
-          // TODO: see if i can actually use a promise such that i don't need to run the query every 500ms
-          const { done } = this.sql
-            .exec<{ done: number }>(
-              `SELECT COUNT(*) AS done FROM responses WHERE done=1`,
-            )
-            .one();
+      return new Response(
+        new ReadableStream({
+          start: async (controller) => {
+            try {
+              const url = new URL(request.url);
+              const count = Number(url.searchParams.get("count"));
+              const encoder = new TextEncoder();
 
-          const allDone = done === count;
+              let results;
+              let t = 0;
+              let error: string | undefined =
+                "Timeout exceeded: max queue time is 1 day";
 
-          if (allDone) {
-            error = undefined;
-            break;
-          }
-          t = t + 0.5;
-          await new Promise<void>((resolve) =>
-            setTimeout(() => resolve(), 500),
-          );
-        }
+              while (t <= 86400) {
+                results = this.sql
+                  .exec<ResponseItem>(`SELECT * FROM responses ORDER BY id ASC`)
+                  .toArray();
 
-        const results = this.sql
-          .exec<ResponseItem>(`SELECT * FROM responses ORDER BY id ASC`)
-          .toArray();
+                // Count statuses
+                const status: { [key: string]: number } = {};
+                results.forEach((r) => {
+                  status[r.status] = (status[r.status] || 0) + 1;
+                });
 
-        const resultArray = results
-          .sort((a, b) => a.id - b.id)
-          .map((item) => tryParseJson(item.result) || item.result || null);
-        console.log("resss", results, resultArray);
+                const done = results.filter((x) => x.done).length;
 
-        return new Response(
-          error || JSON.stringify(resultArray, undefined, 2),
-          {
-            status: error ? 400 : 200,
-            headers: { "Content-Type": "application/json" },
+                controller.enqueue(
+                  encoder.encode(
+                    `event: update\ndata: ${JSON.stringify({
+                      type: "update",
+                      status,
+                      done,
+                    })}\n\n`,
+                  ),
+                );
+
+                const allDone = results!.filter((x) => x.done).length === count;
+                if (allDone) {
+                  error = undefined;
+                  break;
+                }
+
+                t = t + 0.5;
+                await new Promise<void>((resolve) => setTimeout(resolve, 500));
+              }
+
+              const resultArray = results!
+                .sort((a, b) => a.id - b.id)
+                .map(
+                  (item) => tryParseJson(item.result) || item.result || null,
+                );
+
+              // Send final result
+              controller.enqueue(
+                encoder.encode(
+                  `event: result\ndata: ${JSON.stringify({
+                    type: "result",
+                    array: resultArray,
+                  })}\n\n`,
+                ),
+              );
+
+              controller.close();
+            } catch (e: any) {
+              console.error("crash in stream", e);
+              controller.close();
+            }
           },
-        );
-      } catch (e: any) {
-        return new Response("Something went wrong: " + e.message, {
-          status: 500,
-        });
-      }
+        }),
+        {
+          headers: {
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive",
+          },
+        },
+      );
     }
 
     if (request.method === "POST") {

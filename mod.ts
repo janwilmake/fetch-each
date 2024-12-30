@@ -57,18 +57,20 @@ export const fetchEach = async <U = any>(
     for (const line of lines) {
       if (line.startsWith("event: ")) {
         const eventType = line.slice(7);
-        const data = lines[lines.indexOf(line) + 1];
-        if (!data?.startsWith("data: ")) {
+        // Find next non-empty line
+        const dataIndex = lines.findIndex(
+          (l, i) => i > lines.indexOf(line) && l.startsWith("data: "),
+        );
+        if (dataIndex === -1) {
           console.log("unknown event", lines);
           continue;
         }
+        const data = lines[dataIndex];
         const parsed = JSON.parse(data.slice(6));
         if (eventType === "update" && config.log) {
           config.log(JSON.stringify(parsed));
         } else if (eventType === "result") {
           return parsed.array;
-        } else {
-          console.log({ eventType, data });
         }
       }
     }

@@ -77,6 +77,6 @@ const squares = await fetchEach(array, { url: "https://api.openai.com/chat/compl
 
 In this example a new utility function `fetchEach` is introduced as a new syntactic sugar that allows executing code in distributed fashion across workers using a pool of queues while keeping the simplicity of code.
 
-![](fetch-each.drawio.svg)
+![](public/fetch-each.drawio.svg)
 
 fetch-each allows creating queues while you can still get still await the response of every item and execute the rest of your code after. This creates a much simpler way to do workflows. Because of the ability of queues to scale in parallel, fetch-each makes expensive operations much faster to complete in a worker environment. For example, the above example could take just 5 seconds.

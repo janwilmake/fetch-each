@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare fetch-each</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-typescript.min.js"></script>
+</head>
+
+<body class="bg-gray-50">
+    <div class="fixed top-0 right-0 mt-4 mr-4 flex items-center text-sm text-black">
+        Powered by
+        <img src="logo.png" alt="Cloudflare" class="h-16 ml-2">
+    </div>
+
+    <header class="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-20">
+        <div class="container mx-auto px-4">
+            <h1 class="text-5xl font-bold mb-6">fetch-each</h1>
+            <p class="text-xl mb-8">Distributed code execution made simple with Cloudflare Workers</p>
+            <div class="flex space-x-4">
+                <a href="https://jsr.io/@cfa/fetch-each"
+                    class="bg-white text-orange-600 px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition">Get
+                    Started</a>
+                <a href="https://github.com/CodeFromAnywhere/fetch-each"
+                    class="border border-white text-white px-6 py-2 rounded-lg font-medium hover:bg-orange-600 transition">View
+                    on GitHub</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-16">
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">Simple. Fast. Distributed.</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-semibold mb-4">Easy to Use</h3>
+                    <p>Write parallel code as simply as using Array.map(). No complex workflow configurations needed.
+                    </p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-semibold mb-4">Highly Scalable</h3>
+                    <p>Process thousands of requests in parallel using Cloudflare's global network and queues.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-xl font-semibold mb-4">Reliable</h3>
+                    <p>Built-in retry mechanism, error handling, and status tracking for each operation.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold mb-6">How It Works</h2>
+            <img src="fetch-each.drawio.svg" alt="fetch-each architecture diagram"
+                class="w-full max-w-3xl mx-auto mb-8">
+            <div class="prose max-w-none">
+                <p class="text-lg mb-4">fetch-each uses Cloudflare Queues and Durable Objects to distribute work across
+                    workers while maintaining the simplicity of writing synchronous code.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-3xl font-bold mb-6">Get Started</h2>
+            <div class="bg-gray-900 rounded-lg p-6 overflow-x-auto">
+                <pre><code class="language-typescript">import { fetchEach } from "@cfa/fetch-each";
+
+// Process multiple API requests in parallel
+const results = await fetchEach([
+  {
+    url: "https://api.example.com/data",
+    method: "POST",
+    body: { query: "example" }
+  },
+  // ... more requests
+]);
+</code></pre>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">fetch-each</h3>
+                    <p class="text-gray-400">Built with Cloudflare Workers</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="https://jsr.io/@cfa/fetch-each"
+                                class="text-gray-400 hover:text-white">Documentation</a></li>
+                        <li><a href="https://github.com/CodeFromAnywhere/fetch-each"
+                                class="text-gray-400 hover:text-white">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

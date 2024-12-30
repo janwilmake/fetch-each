@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "publish": "npx jsr publish"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241224.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.99.0"
+  }
+}

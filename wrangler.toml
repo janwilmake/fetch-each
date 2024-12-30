@@ -1,0 +1,25 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "codefromanywhere_fetch-each"
+main = "worker.ts"
+compatibility_date = "2024-12-27"
+assets = { directory = "./public" }
+routes = [
+  { pattern = "fetch-each.actionschema.com", custom_domain = true }
+]
+
+[[queues.producers]]
+queue = "fetch-each-queue"
+binding = "workflow_queue"
+
+[[queues.consumers]]
+queue = "fetch-each-queue"
+max_concurrency = 250
+max_batch_size = 6
+
+[[durable_objects.bindings]]
+name = "workflow_durable_object"
+class_name = "WorkflowDurableObject"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["WorkflowDurableObject"]

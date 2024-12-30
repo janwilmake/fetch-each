@@ -1,4 +1,4 @@
-# Cloudflare Fetch Each
+# Cloudflare `fetchEach`
 
 `fetchEach` allows executing map functions in a distributed fashion by adding it to a queue and waiting for all results so you're not constrained by memory and other limitations of serverless environments, such as max 6 concurrent fetches.
 
@@ -10,13 +10,16 @@ Current limitations:
 - **max itemsize is < 128kb** currently due to queue message size limit (can be increased by using some other short-lived storage medium)
 - **max 250 concurrent, max 5000 rps**; uses a single cloudflare queue so it's not super scalable as it has a max throughput of 5000 messages per second and 250 concurrent (see [cloudflare queue limits](https://developers.cloudflare.com/queues/platform/limits/)), and any usage of dmap can block other dmap usage elsewhere (can be solved using a queue pool)
 
-# Installation
+# How to use?
 
-See JSR [@cfa/fetch-each](https://jsr.io/@cfa/fetch-each)
+1. Clone this repo and deploy it on cloudflare using your own queue
 
-# Benchmarking 100000 LLM API calls
+- `git clone https://github.com/CodeFromAnywhere/fetch-each`
+- `cd fetch-each`
+- `npx wrangler queues create fetch-each-queue`
+- `npx wrangler deploy`
 
-TODO: Make a simple map that queues 100k llm api calls
+2. Use the package [@cfa/fetch-each](https://jsr.io/@cfa/fetch-each) or use your hosted API directly in your code.
 
 # Cloudflare Blog (Draft)
 

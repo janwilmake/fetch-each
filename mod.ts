@@ -35,7 +35,7 @@ export const fetchEach = async <U = any>(
   });
 
   if (!response.ok) {
-    throw new Error(`Failed: ${response.status} -- ${await response.text()}`);
+    throw new Error(`dmap failed: ${await response.text()}`);
   }
 
   if (!response.body) {
@@ -45,6 +45,8 @@ export const fetchEach = async <U = any>(
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
+  let resultBuffer = "";
+  let collectingResult = false;
 
   while (true) {
     const { done, value } = await reader.read();
@@ -56,25 +58,34 @@ export const fetchEach = async <U = any>(
 
     for (const line of lines) {
       if (line.startsWith("event: ")) {
-        const eventType = line.slice(7);
-        // Find next non-empty line
-        const dataIndex = lines.findIndex(
-          (l, i) => i > lines.indexOf(line) && l.startsWith("data: "),
-        );
-        if (dataIndex === -1) {
-          console.log("unknown event", lines);
+        const eventType = line.slice(7).trim();
+
+        if (eventType === "result") {
+          collectingResult = true;
           continue;
         }
-        const data = lines[dataIndex];
-        const parsed = JSON.parse(data.slice(6));
-        if (eventType === "update" && config.log) {
-          config.log(JSON.stringify(parsed));
-        } else if (eventType === "result") {
+
+        if (eventType === "update") {
+          const data = lines[lines.indexOf(line) + 1];
+          if (!data?.startsWith("data: ")) continue;
+          if (config.log) {
+            config.log(data.slice(6));
+          }
+        }
+      }
+
+      if (collectingResult && line.startsWith("data: ")) {
+        resultBuffer += line.slice(6);
+        try {
+          const parsed = JSON.parse(resultBuffer);
           return parsed.array;
+        } catch {
+          // Keep collecting if JSON is incomplete
+          continue;
         }
       }
     }
   }
 
-  throw new Error("Stream ended without result");
+  throw new Error("Stream ended without complete result");
 };

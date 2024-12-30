@@ -299,6 +299,17 @@ export class WorkflowDurableObject extends DurableObject<Env> {
               controller.close();
             } catch (e: any) {
               console.error("crash in stream", e);
+              const encoder = new TextEncoder();
+
+              controller.enqueue(
+                encoder.encode(
+                  `event: result\ndata: ${JSON.stringify({
+                    type: "update",
+                    error: "Crash in stream" + e.message,
+                  })}\n\n`,
+                ),
+              );
+
               controller.close();
             }
           },

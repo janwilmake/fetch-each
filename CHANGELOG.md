@@ -23,5 +23,3 @@ made the first version called `dmap` at https://github.com/codefromanywhere/acti
 ✅ add some example usage to the repo
 
 ✅ ensure the durable objects and queues get cleaned up nicely
-
-🤔 may be nice? `fetchEach` with instant 202 and callback

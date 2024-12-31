@@ -129,3 +129,17 @@ const structuredOutputs = async <T>(
 ![Architecture Diagram](public/graph.drawio.svg)
 
 `fetch-each` distributes requests across multiple workers using CloudFlare's queue system while maintaining a simple API interface. Progress is tracked using durable objects, enabling real-time status updates and retry handling.
+
+## Related work and wishlist
+
+Related:
+
+- https://github.com/codefromanywhere/actionschema.dmap (Same but uses https://github.com/CodeFromAnywhere/evaloncloud to do code execution rather than just requests)
+- https://github.com/CodeFromAnywhere/queue-workflow-experiments (Experiments to make queue workflows)
+
+Wishlist:
+
+- If we have **instant 202 and callback** for any fetchEach request, we can build workflows that return to the workflow only after a queue has finished. This allows more efficient short-running functions
+- It would be great to keep state in r2 on the workflow step level, where a workflow can run any code as long as it uses fetchEach for concurrent http requests.
+
+![](public/workflow.drawio.svg)

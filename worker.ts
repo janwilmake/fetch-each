@@ -16,7 +16,7 @@ export type RequestJson = {
 
 type FetchItem = {
   durableObjectName: string;
-  item: RequestJson;
+  item: RequestJson | null;
   index: number;
 };
 
@@ -112,46 +112,52 @@ export default {
         // each message is a request
 
         const { index, item, durableObjectName } = message.body;
+
         let done = false;
         let status;
         let error;
         let result;
         const responseHeaders: { [name: string]: string } = {};
 
-        try {
-          const { url, body, headers, method } = item;
-          // execute request
-          const response = await fetch(url, {
-            method: method ? method : body ? "POST" : "GET",
-            headers,
-            body:
-              typeof body === "string"
-                ? body
-                : typeof body === "object"
-                ? JSON.stringify(body)
-                : undefined,
-          });
+        if (item) {
+          try {
+            const { url, body, headers, method } = item;
+            // execute request
+            const response = await fetch(url, {
+              method: method ? method : body ? "POST" : "GET",
+              headers,
+              body:
+                typeof body === "string"
+                  ? body
+                  : typeof body === "object"
+                  ? JSON.stringify(body)
+                  : undefined,
+            });
 
-          done =
-            response.status === 200 ||
-            !shouldRetry(response.status, message.attempts);
+            done =
+              response.status === 200 ||
+              !shouldRetry(response.status, message.attempts);
 
-          status = response.status;
-          const text = await response.text();
+            status = response.status;
+            const text = await response.text();
 
-          response.headers.forEach(
-            (value, key) => (responseHeaders[key] = value),
-          );
+            response.headers.forEach(
+              (value, key) => (responseHeaders[key] = value),
+            );
 
-          if (response.status === 200) {
-            result = tryParseJson(text) || text || undefined;
-          } else {
-            error = text;
+            if (response.status === 200) {
+              result = tryParseJson(text) || text || undefined;
+            } else {
+              error = text;
+            }
+          } catch (e: any) {
+            done = false;
+            status = 500;
+            error = e.message;
           }
-        } catch (e: any) {
-          done = false;
-          status = 500;
-          error = e.message;
+        } else {
+          status = 200;
+          done = true;
         }
 
         // retry cetain ones, don't retry other ones

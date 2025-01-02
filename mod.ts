@@ -11,7 +11,7 @@ export type RequestJson = {
  */
 export const fetchEach = async <U = any>(
   /** JSON serializable array */
-  array: (string | RequestJson)[],
+  array: (string | RequestJson | null)[],
   /** Pass a logger to view updates */
   config: { apiKey: string; basePath: string; log?: (log: string) => void },
 ): Promise<

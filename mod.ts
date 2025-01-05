@@ -56,7 +56,11 @@ export const fetchEach = async <U = any>(
   });
 
   if (!response.ok) {
-    throw new Error(`dmap failed: ${await response.text()}`);
+    throw new Error(
+      `fetchEach failed for ${config.basePath}: ${
+        response.status
+      } ${await response.text()}`,
+    );
   }
 
   if (!response.body) {

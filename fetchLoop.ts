@@ -10,7 +10,7 @@ export const fetchLoop = async <T>(context: {
   headers?: { [name: string]: string };
   getResultRequests: (result: T) => string[];
   onResult?: (result: T) => void;
-}) => {
+}): Promise<void> => {
   let already: string[] = [];
   let urls = context.urls;
 

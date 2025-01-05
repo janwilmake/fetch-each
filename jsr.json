@@ -4,6 +4,11 @@
   "version": "1.0.12",
   "exports": "./mod.ts",
   "publish": {
-    "include": ["README.md", "public/graph.drawio.svg", "mod.ts"]
+    "include": [
+      "README.md",
+      "public/graph.drawio.svg",
+      "mod.ts",
+      "fetchLoop.ts"
+    ]
   }
 }

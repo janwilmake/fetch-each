@@ -6,14 +6,35 @@ export type RequestJson = {
   headers?: { [name: string]: string };
 };
 
+type ResponseItem = {
+  id: number;
+  headers?: string;
+  status: number;
+  error?: string;
+  result?: any;
+  done: number;
+  created_at: number;
+};
+
+type Update = {
+  type: "update";
+  status: { [key: string]: number };
+  done?: number;
+  error?: string;
+  results?: ResponseItem[];
+};
 /**
- * Fetch without hitting fetch concurrency limits by fetching via a queue. Array must be an array of URLs or RequestJson's for it to be executed
+ * Do a single workflow
  */
 export const fetchEach = async <U = any>(
   /** JSON serializable array */
   array: (string | RequestJson | null)[],
   /** Pass a logger to view updates */
-  config: { apiKey: string; basePath: string; log?: (log: string) => void },
+  config: {
+    apiKey: string;
+    basePath: string;
+    log?: (log: Update) => void;
+  },
 ): Promise<
   {
     result?: U;
@@ -55,22 +76,14 @@ export const fetchEach = async <U = any>(
     buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split("\n");
     buffer = lines.pop() || "";
-
+    let eventType = undefined;
     for (const line of lines) {
       if (line.startsWith("event: ")) {
-        const eventType = line.slice(7).trim();
+        eventType = line.slice(7).trim();
 
-        if (eventType === "result") {
+        if (eventType === "result" || eventType === "update") {
           collectingResult = true;
           continue;
-        }
-
-        if (eventType === "update") {
-          const data = lines[lines.indexOf(line) + 1];
-          if (!data?.startsWith("data: ")) continue;
-          if (config.log) {
-            config.log(data.slice(6));
-          }
         }
       }
 
@@ -78,7 +91,12 @@ export const fetchEach = async <U = any>(
         resultBuffer += line.slice(6);
         try {
           const parsed = JSON.parse(resultBuffer);
-          return parsed.array;
+          if (eventType === "update") {
+            config.log?.(parsed as Update);
+            collectingResult = false;
+          } else if (eventType === "result") {
+            return parsed.array;
+          }
         } catch {
           // Keep collecting if JSON is incomplete
           continue;
@@ -89,3 +107,5 @@ export const fetchEach = async <U = any>(
 
   throw new Error("Stream ended without complete result");
 };
+
+export { fetchLoop } from "./fetchLoop";

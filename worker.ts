@@ -1,8 +1,8 @@
 import { DurableObject } from "cloudflare:workers";
 
-interface Env {
+type QueueEnv = { [name: `queue_${number}`]: Queue };
+interface Env extends QueueEnv {
   workflow_durable_object: DurableObjectNamespace<WorkflowDurableObject>;
-  workflow_queue: Queue;
   SECRET: string;
 }
 
@@ -18,6 +18,14 @@ type FetchItem = {
   durableObjectName: string;
   item: RequestJson | null;
   index: number;
+};
+
+type Update = {
+  type: "update";
+  status: { [key: string]: number };
+  done?: number;
+  error?: string;
+  results?: ResponseItem[];
 };
 
 type ResponseItem = {
@@ -79,11 +87,26 @@ export default {
         }),
       );
 
-      // Send messages to queue in chunks of 100
-      for (let i = 0; i < messages.length; i += 100) {
-        const chunk = messages.slice(i, i + 100);
-        await env.workflow_queue.sendBatch(chunk);
+      const QUEUE_COUNT = 100;
+      const MAX_BATCH_SIZE = 6;
+
+      // depending on the total requests that need to be done, we want to send so many in a batch
+      const chunkSize =
+        messages.length / QUEUE_COUNT <= MAX_BATCH_SIZE
+          ? MAX_BATCH_SIZE
+          : Math.min(100, Math.ceil(messages.length / QUEUE_COUNT));
+
+      // Divide all requests over the queues as quickly and smartly as possible
+      let q = 0;
+      const promises: Promise<void>[] = [];
+      for (let i = 0; i < messages.length; i += chunkSize) {
+        const chunk = messages.slice(i, i + chunkSize);
+        const queue: Queue = env[`queue_${q}`];
+        promises.push(queue.sendBatch(chunk));
+        q = (q + 1) % QUEUE_COUNT;
       }
+      // Await for that to be all done
+      await Promise.all(promises);
 
       // Create Durable Object
       const doId = env.workflow_durable_object.idFromName(durableObjectName);
@@ -165,23 +188,23 @@ export default {
         const doId = env.workflow_durable_object.idFromName(durableObjectName);
         const do_instance = env.workflow_durable_object.get(doId);
 
-        // submit the value to the sql DO
-        await do_instance.fetch(
-          new Request("http://something.com/", {
-            method: "POST",
-            body: JSON.stringify({
-              id: index,
-              status,
-              headers: Object.keys(responseHeaders).length
-                ? JSON.stringify(responseHeaders)
-                : undefined,
-              error,
-              result,
-              created_at: Date.now(),
-              done: done ? 1 : 0,
-            } satisfies ResponseItem),
-          }),
-        );
+        const request = new Request("http://something.com/", {
+          method: "POST",
+          body: JSON.stringify({
+            id: index,
+            status,
+            headers: Object.keys(responseHeaders).length
+              ? JSON.stringify(responseHeaders)
+              : undefined,
+            error,
+            result,
+            created_at: Date.now(),
+            done: done ? 1 : 0,
+          } satisfies ResponseItem),
+        });
+
+        // submit the value to the sql DO, circumventing it being overloaded
+        await fetchWithRetry(do_instance, request);
 
         if (done) {
           message.ack();
@@ -194,6 +217,28 @@ export default {
       }),
     );
   },
+};
+
+const fetchWithRetry = async (
+  stub: DurableObjectStub,
+  request: Request,
+  maxAttempts = 25,
+) => {
+  let attempt = 0;
+  while (true) {
+    try {
+      return await stub.fetch(request);
+    } catch (e: any) {
+      attempt++;
+      if (attempt >= maxAttempts || !e.retryable) {
+        throw e;
+      }
+      // Exponential backoff
+      await new Promise((resolve) =>
+        setTimeout(resolve, Math.pow(2, attempt) * 100),
+      );
+    }
+  }
 };
 
 export class WorkflowDurableObject extends DurableObject<Env> {
@@ -235,6 +280,7 @@ export class WorkflowDurableObject extends DurableObject<Env> {
 
   async fetch(request: Request): Promise<Response> {
     if (request.method === "GET") {
+      // always stream, for now
       const isStream = request.headers.get("accept") === "text/event-stream";
 
       return new Response(
@@ -252,6 +298,9 @@ export class WorkflowDurableObject extends DurableObject<Env> {
                 "Timeout exceeded: max queue time is 1 day";
 
               while (t <= 86400) {
+                // count done
+
+                // NB: can be expensive for large responses, so may be better to count statuses and 'done' in a query instead.
                 results = this.sql
                   .exec<ResponseItem>(`SELECT * FROM responses ORDER BY id ASC`)
                   .toArray();
@@ -262,13 +311,14 @@ export class WorkflowDurableObject extends DurableObject<Env> {
                   status[r.status] = (status[r.status] || 0) + 1;
                 });
 
-                const done = results.filter((x) => x.done).length;
+                const r = results.filter((x) => x.done);
 
                 const newUpdateString = JSON.stringify({
                   type: "update",
                   status,
-                  done,
-                });
+                  done: r.length,
+                  results: r,
+                } satisfies Update);
                 if (updateString !== newUpdateString) {
                   controller.enqueue(
                     encoder.encode(
@@ -291,7 +341,11 @@ export class WorkflowDurableObject extends DurableObject<Env> {
                 await new Promise<void>((resolve) => setTimeout(resolve, 500));
               }
 
-              const resultArray = results!
+              const finalResults = this.sql
+                .exec<ResponseItem>(`SELECT * FROM responses ORDER BY id ASC`)
+                .toArray();
+
+              const resultArray = finalResults
                 .sort((a, b) => a.id - b.id)
                 .map((item) => ({
                   status: item.status,

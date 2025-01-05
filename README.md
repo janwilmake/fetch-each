@@ -143,3 +143,7 @@ Wishlist:
 - It would be great to keep state in r2 on the workflow step level, where a workflow can run any code as long as it uses fetchEach for concurrent http requests.
 
 ![](public/workflow.drawio.svg)
+
+- `{url:"https://hacker-news.firebaseio.com/v0/item/100000000.json"}` 100x50M = 5000MB
+- For tasks where its desired to request millions of URLs
+- To increase maximum throughput past ±1000 requests per second, we must scale the amount of durable objects. We can do this by dividing requests over several durable objects that all report back to a collector DO. See https://claude.ai/chat/0a442f4d-11ef-4b5a-8207-403163293770

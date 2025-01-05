@@ -8,14 +8,14 @@ routes = [
   { pattern = "fetch-each.actionschema.com", custom_domain = true }
 ]
 
-[[queues.producers]]
-queue = "fetch-each-queue"
-binding = "workflow_queue"
+#[[queues.producers]]
+#queue = "queue-0"
+#binding = "workflow_queue"
 
-[[queues.consumers]]
-queue = "fetch-each-queue"
-max_concurrency = 250
-max_batch_size = 6
+#[[queues.consumers]]
+#queue = "fetch-each-queue"
+#max_concurrency = 250
+#max_batch_size = 6
 
 [[durable_objects.bindings]]
 name = "workflow_durable_object"
@@ -24,3 +24,908 @@ class_name = "WorkflowDurableObject"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["WorkflowDurableObject"]
+
+
+
+
+######## BELOW ARE ALL QUEUE CONSUMERS
+
+[[queues.producers]]
+queue = "queue-0"
+binding = "QUEUE_0"
+
+[[queues.consumers]]
+queue = "queue-0"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-1"
+binding = "QUEUE_1"
+
+[[queues.consumers]]
+queue = "queue-1"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-2"
+binding = "QUEUE_2"
+
+[[queues.consumers]]
+queue = "queue-2"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-3"
+binding = "QUEUE_3"
+
+[[queues.consumers]]
+queue = "queue-3"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-4"
+binding = "QUEUE_4"
+
+[[queues.consumers]]
+queue = "queue-4"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-5"
+binding = "QUEUE_5"
+
+[[queues.consumers]]
+queue = "queue-5"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-6"
+binding = "QUEUE_6"
+
+[[queues.consumers]]
+queue = "queue-6"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-7"
+binding = "QUEUE_7"
+
+[[queues.consumers]]
+queue = "queue-7"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-8"
+binding = "QUEUE_8"
+
+[[queues.consumers]]
+queue = "queue-8"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-9"
+binding = "QUEUE_9"
+
+[[queues.consumers]]
+queue = "queue-9"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-10"
+binding = "QUEUE_10"
+
+[[queues.consumers]]
+queue = "queue-10"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-11"
+binding = "QUEUE_11"
+
+[[queues.consumers]]
+queue = "queue-11"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-12"
+binding = "QUEUE_12"
+
+[[queues.consumers]]
+queue = "queue-12"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-13"
+binding = "QUEUE_13"
+
+[[queues.consumers]]
+queue = "queue-13"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-14"
+binding = "QUEUE_14"
+
+[[queues.consumers]]
+queue = "queue-14"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-15"
+binding = "QUEUE_15"
+
+[[queues.consumers]]
+queue = "queue-15"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-16"
+binding = "QUEUE_16"
+
+[[queues.consumers]]
+queue = "queue-16"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-17"
+binding = "QUEUE_17"
+
+[[queues.consumers]]
+queue = "queue-17"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-18"
+binding = "QUEUE_18"
+
+[[queues.consumers]]
+queue = "queue-18"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-19"
+binding = "QUEUE_19"
+
+[[queues.consumers]]
+queue = "queue-19"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-20"
+binding = "QUEUE_20"
+
+[[queues.consumers]]
+queue = "queue-20"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-21"
+binding = "QUEUE_21"
+
+[[queues.consumers]]
+queue = "queue-21"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-22"
+binding = "QUEUE_22"
+
+[[queues.consumers]]
+queue = "queue-22"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-23"
+binding = "QUEUE_23"
+
+[[queues.consumers]]
+queue = "queue-23"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-24"
+binding = "QUEUE_24"
+
+[[queues.consumers]]
+queue = "queue-24"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-25"
+binding = "QUEUE_25"
+
+[[queues.consumers]]
+queue = "queue-25"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-26"
+binding = "QUEUE_26"
+
+[[queues.consumers]]
+queue = "queue-26"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-27"
+binding = "QUEUE_27"
+
+[[queues.consumers]]
+queue = "queue-27"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-28"
+binding = "QUEUE_28"
+
+[[queues.consumers]]
+queue = "queue-28"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-29"
+binding = "QUEUE_29"
+
+[[queues.consumers]]
+queue = "queue-29"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-30"
+binding = "QUEUE_30"
+
+[[queues.consumers]]
+queue = "queue-30"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-31"
+binding = "QUEUE_31"
+
+[[queues.consumers]]
+queue = "queue-31"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-32"
+binding = "QUEUE_32"
+
+[[queues.consumers]]
+queue = "queue-32"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-33"
+binding = "QUEUE_33"
+
+[[queues.consumers]]
+queue = "queue-33"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-34"
+binding = "QUEUE_34"
+
+[[queues.consumers]]
+queue = "queue-34"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-35"
+binding = "QUEUE_35"
+
+[[queues.consumers]]
+queue = "queue-35"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-36"
+binding = "QUEUE_36"
+
+[[queues.consumers]]
+queue = "queue-36"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-37"
+binding = "QUEUE_37"
+
+[[queues.consumers]]
+queue = "queue-37"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-38"
+binding = "QUEUE_38"
+
+[[queues.consumers]]
+queue = "queue-38"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-39"
+binding = "QUEUE_39"
+
+[[queues.consumers]]
+queue = "queue-39"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-40"
+binding = "QUEUE_40"
+
+[[queues.consumers]]
+queue = "queue-40"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-41"
+binding = "QUEUE_41"
+
+[[queues.consumers]]
+queue = "queue-41"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-42"
+binding = "QUEUE_42"
+
+[[queues.consumers]]
+queue = "queue-42"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-43"
+binding = "QUEUE_43"
+
+[[queues.consumers]]
+queue = "queue-43"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-44"
+binding = "QUEUE_44"
+
+[[queues.consumers]]
+queue = "queue-44"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-45"
+binding = "QUEUE_45"
+
+[[queues.consumers]]
+queue = "queue-45"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-46"
+binding = "QUEUE_46"
+
+[[queues.consumers]]
+queue = "queue-46"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-47"
+binding = "QUEUE_47"
+
+[[queues.consumers]]
+queue = "queue-47"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-48"
+binding = "QUEUE_48"
+
+[[queues.consumers]]
+queue = "queue-48"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-49"
+binding = "QUEUE_49"
+
+[[queues.consumers]]
+queue = "queue-49"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-50"
+binding = "QUEUE_50"
+
+[[queues.consumers]]
+queue = "queue-50"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-51"
+binding = "QUEUE_51"
+
+[[queues.consumers]]
+queue = "queue-51"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-52"
+binding = "QUEUE_52"
+
+[[queues.consumers]]
+queue = "queue-52"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-53"
+binding = "QUEUE_53"
+
+[[queues.consumers]]
+queue = "queue-53"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-54"
+binding = "QUEUE_54"
+
+[[queues.consumers]]
+queue = "queue-54"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-55"
+binding = "QUEUE_55"
+
+[[queues.consumers]]
+queue = "queue-55"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-56"
+binding = "QUEUE_56"
+
+[[queues.consumers]]
+queue = "queue-56"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-57"
+binding = "QUEUE_57"
+
+[[queues.consumers]]
+queue = "queue-57"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-58"
+binding = "QUEUE_58"
+
+[[queues.consumers]]
+queue = "queue-58"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-59"
+binding = "QUEUE_59"
+
+[[queues.consumers]]
+queue = "queue-59"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-60"
+binding = "QUEUE_60"
+
+[[queues.consumers]]
+queue = "queue-60"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-61"
+binding = "QUEUE_61"
+
+[[queues.consumers]]
+queue = "queue-61"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-62"
+binding = "QUEUE_62"
+
+[[queues.consumers]]
+queue = "queue-62"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-63"
+binding = "QUEUE_63"
+
+[[queues.consumers]]
+queue = "queue-63"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-64"
+binding = "QUEUE_64"
+
+[[queues.consumers]]
+queue = "queue-64"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-65"
+binding = "QUEUE_65"
+
+[[queues.consumers]]
+queue = "queue-65"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-66"
+binding = "QUEUE_66"
+
+[[queues.consumers]]
+queue = "queue-66"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-67"
+binding = "QUEUE_67"
+
+[[queues.consumers]]
+queue = "queue-67"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-68"
+binding = "QUEUE_68"
+
+[[queues.consumers]]
+queue = "queue-68"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-69"
+binding = "QUEUE_69"
+
+[[queues.consumers]]
+queue = "queue-69"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-70"
+binding = "QUEUE_70"
+
+[[queues.consumers]]
+queue = "queue-70"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-71"
+binding = "QUEUE_71"
+
+[[queues.consumers]]
+queue = "queue-71"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-72"
+binding = "QUEUE_72"
+
+[[queues.consumers]]
+queue = "queue-72"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-73"
+binding = "QUEUE_73"
+
+[[queues.consumers]]
+queue = "queue-73"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-74"
+binding = "QUEUE_74"
+
+[[queues.consumers]]
+queue = "queue-74"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-75"
+binding = "QUEUE_75"
+
+[[queues.consumers]]
+queue = "queue-75"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-76"
+binding = "QUEUE_76"
+
+[[queues.consumers]]
+queue = "queue-76"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-77"
+binding = "QUEUE_77"
+
+[[queues.consumers]]
+queue = "queue-77"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-78"
+binding = "QUEUE_78"
+
+[[queues.consumers]]
+queue = "queue-78"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-79"
+binding = "QUEUE_79"
+
+[[queues.consumers]]
+queue = "queue-79"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-80"
+binding = "QUEUE_80"
+
+[[queues.consumers]]
+queue = "queue-80"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-81"
+binding = "QUEUE_81"
+
+[[queues.consumers]]
+queue = "queue-81"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-82"
+binding = "QUEUE_82"
+
+[[queues.consumers]]
+queue = "queue-82"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-83"
+binding = "QUEUE_83"
+
+[[queues.consumers]]
+queue = "queue-83"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-84"
+binding = "QUEUE_84"
+
+[[queues.consumers]]
+queue = "queue-84"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-85"
+binding = "QUEUE_85"
+
+[[queues.consumers]]
+queue = "queue-85"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-86"
+binding = "QUEUE_86"
+
+[[queues.consumers]]
+queue = "queue-86"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-87"
+binding = "QUEUE_87"
+
+[[queues.consumers]]
+queue = "queue-87"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-88"
+binding = "QUEUE_88"
+
+[[queues.consumers]]
+queue = "queue-88"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-89"
+binding = "QUEUE_89"
+
+[[queues.consumers]]
+queue = "queue-89"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-90"
+binding = "QUEUE_90"
+
+[[queues.consumers]]
+queue = "queue-90"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-91"
+binding = "QUEUE_91"
+
+[[queues.consumers]]
+queue = "queue-91"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-92"
+binding = "QUEUE_92"
+
+[[queues.consumers]]
+queue = "queue-92"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-93"
+binding = "QUEUE_93"
+
+[[queues.consumers]]
+queue = "queue-93"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-94"
+binding = "QUEUE_94"
+
+[[queues.consumers]]
+queue = "queue-94"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-95"
+binding = "QUEUE_95"
+
+[[queues.consumers]]
+queue = "queue-95"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-96"
+binding = "QUEUE_96"
+
+[[queues.consumers]]
+queue = "queue-96"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-97"
+binding = "QUEUE_97"
+
+[[queues.consumers]]
+queue = "queue-97"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-98"
+binding = "QUEUE_98"
+
+[[queues.consumers]]
+queue = "queue-98"
+max_batch_size = 6
+max_concurrency = 250
+
+[[queues.producers]]
+queue = "queue-99"
+binding = "QUEUE_99"
+
+[[queues.consumers]]
+queue = "queue-99"
+max_batch_size = 6
+max_concurrency = 250

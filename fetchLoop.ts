@@ -7,6 +7,8 @@ export const fetchLoop = async <T>(context: {
   maxCount?: number;
   prefix?: string;
   proxy: string;
+  basePath: string;
+  apiKey: string;
   headers?: { [name: string]: string };
   getResultRequests: (result: T) => string[];
   onResult?: (result: T) => void;
@@ -14,7 +16,6 @@ export const fetchLoop = async <T>(context: {
   let already: string[] = [];
   let urls = context.urls;
 
-  const config = { apiKey: "", basePath: "" };
   let depth = 0;
   while (true) {
     depth += 1;
@@ -28,7 +29,8 @@ export const fetchLoop = async <T>(context: {
       url: `${context.proxy}/${encodeURIComponent(url)}`,
       headers: context.headers,
     }));
-    const results = await fetchEach<T>(requests, config);
+    const { basePath, apiKey } = context;
+    const results = await fetchEach<T>(requests, { basePath, apiKey });
 
     // we have now done these urls
     already = already.concat(urls);
@@ -62,23 +64,4 @@ export const fetchLoop = async <T>(context: {
       break;
     }
   }
-};
-
-// With fetch-loop we can build powerful primitives like this
-// But also dereferencing is likely a powerful thing that's possible
-type ProxyResult = { markdown: string; links: string[] };
-const myScraperProxy = "https://r.jina.ai";
-const scrapeFromPrefix = (
-  prefix: string,
-  onResult: (result: ProxyResult) => void,
-) => {
-  return fetchLoop<ProxyResult>({
-    urls: [prefix],
-    proxy: myScraperProxy,
-    // headers: {Authorization: `Bearer ${apiKey}`},
-    maxCount: 1000,
-    prefix,
-    getResultRequests: (result) => result.links,
-    onResult,
-  });
 };

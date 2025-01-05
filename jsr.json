@@ -1,7 +1,7 @@
 {
   "name": "@cfa/fetch-each",
   "license": "MIT",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "exports": "./mod.ts",
   "publish": {
     "include": [

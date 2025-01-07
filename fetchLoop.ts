@@ -1,5 +1,4 @@
 import { fetchEach } from "./mod";
-
 /** This function recursively goes into the queue as long as the resulting responses have more to do that wasn't already done */
 export const fetchLoop = async <T>(context: {
   urls: string[];
@@ -10,8 +9,8 @@ export const fetchLoop = async <T>(context: {
   basePath: string;
   apiKey: string;
   headers?: { [name: string]: string };
-  getResultRequests: (result: T) => string[];
-  onResult?: (result: T) => void;
+  getResultRequests: (result: T) => Promise<string[]>;
+  onResult: (result: T) => void;
 }): Promise<void> => {
   let already: string[] = [];
   let urls = context.urls;
@@ -20,17 +19,25 @@ export const fetchLoop = async <T>(context: {
   while (true) {
     depth += 1;
 
+    console.log("urls", urls);
+
     if (context.maxDepth && depth >= context.maxDepth) {
       // base case 1: max depth
       break;
     }
 
     const requests = urls.map((url) => ({
-      url: `${context.proxy}/${encodeURIComponent(url)}`,
+      url: `${context.proxy}/${url}`,
       headers: context.headers,
     }));
     const { basePath, apiKey } = context;
+    console.log("requests", requests);
     const results = await fetchEach<T>(requests, { basePath, apiKey });
+
+    // return the resultsf
+    results.map((result) =>
+      result.result ? context.onResult(result.result) : undefined,
+    );
 
     // we have now done these urls
     already = already.concat(urls);
@@ -41,17 +48,22 @@ export const fetchLoop = async <T>(context: {
     }
 
     // go again with all links we found that we haven't searched yet
-    const searchableUrls = results
-      .map((item) =>
-        item.result
-          ? (context
-              .getResultRequests(item.result)
-              .filter(
+    const searchableUrls = (
+      await Promise.all(
+        results.map(async (item) =>
+          item.result
+            ? ((
+                await context.getResultRequests(item.result)
+              ).filter(
                 (url: string) =>
-                  !context.prefix || url.startsWith(context.prefix),
+                  !context.prefix ||
+                  url.startsWith(context.prefix) ||
+                  url.startsWith(new URL(context.prefix).pathname),
               ) as string[])
-          : [],
+            : [],
+        ),
       )
+    )
       .flat()
       .filter(Boolean);
 

@@ -1,10 +1,4 @@
-export type RequestJson = {
-  url: string;
-  body?: string | object;
-  /** defaults to post if body is given, get otherwise */
-  method?: "GET" | "POST" | "DELETE" | "PUT" | "PATCH";
-  headers?: { [name: string]: string };
-};
+export { fetchLoop } from "./fetchLoop";
 
 type ResponseItem = {
   id: number;
@@ -28,7 +22,7 @@ type Update = {
  */
 export const fetchEach = async <U = any>(
   /** JSON serializable array */
-  array: (string | RequestJson | null)[],
+  array: (string | any | null)[],
   /** Pass a logger to view updates */
   config: {
     apiKey: string;
@@ -56,11 +50,7 @@ export const fetchEach = async <U = any>(
   });
 
   if (!response.ok) {
-    throw new Error(
-      `fetchEach failed for ${config.basePath}: ${
-        response.status
-      } ${await response.text()}`,
-    );
+    throw new Error(`dmap failed: ${await response.text()}`);
   }
 
   if (!response.body) {
@@ -80,14 +70,23 @@ export const fetchEach = async <U = any>(
     buffer += decoder.decode(value, { stream: true });
     const lines = buffer.split("\n");
     buffer = lines.pop() || "";
-    let eventType = undefined;
+
     for (const line of lines) {
       if (line.startsWith("event: ")) {
-        eventType = line.slice(7).trim();
+        const eventType = line.slice(7).trim();
 
-        if (eventType === "result" || eventType === "update") {
+        if (eventType === "result") {
           collectingResult = true;
           continue;
+        }
+
+        if (eventType === "update") {
+          const data = lines[lines.indexOf(line) + 1];
+          if (!data?.startsWith("data: ")) continue;
+          if (config.log) {
+            const result: Update = JSON.parse(data.slice(6));
+            config.log(result);
+          }
         }
       }
 
@@ -95,12 +94,7 @@ export const fetchEach = async <U = any>(
         resultBuffer += line.slice(6);
         try {
           const parsed = JSON.parse(resultBuffer);
-          if (eventType === "update") {
-            config.log?.(parsed as Update);
-            collectingResult = false;
-          } else if (eventType === "result") {
-            return parsed.array;
-          }
+          return parsed.array;
         } catch {
           // Keep collecting if JSON is incomplete
           continue;
@@ -111,5 +105,3 @@ export const fetchEach = async <U = any>(
 
   throw new Error("Stream ended without complete result");
 };
-
-export { fetchLoop } from "./fetchLoop";

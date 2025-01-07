@@ -1,6 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 
-type QueueEnv = { [name: `queue_${number}`]: Queue };
+type QueueEnv = { [name: `QUEUE_${number}`]: Queue };
 interface Env extends QueueEnv {
   workflow_durable_object: DurableObjectNamespace<WorkflowDurableObject>;
   SECRET: string;
@@ -101,7 +101,7 @@ export default {
       const promises: Promise<void>[] = [];
       for (let i = 0; i < messages.length; i += chunkSize) {
         const chunk = messages.slice(i, i + chunkSize);
-        const queue: Queue = env[`queue_${q}`];
+        const queue: Queue = env[`QUEUE_${q}`];
         promises.push(queue.sendBatch(chunk));
         q = (q + 1) % QUEUE_COUNT;
       }

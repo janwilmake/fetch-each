@@ -1,4 +1,4 @@
-export { fetchLoop } from "./fetchLoop";
+// export { fetchLoop } from "./fetchLoop";
 
 type ResponseItem = {
   id: number;
@@ -40,68 +40,69 @@ export const fetchEach = async <U = any>(
   const requestJsons = array.map((item) =>
     typeof item === "string" ? { url: item } : item,
   );
+  console.log({ requestJsons, config });
   const response = await fetch(config.basePath, {
     method: "POST",
     body: JSON.stringify(requestJsons),
     headers: {
       Authorization: `Bearer ${config.apiKey}`,
-      Accept: "text/event-stream",
+      //Accept: "text/event-stream",
     },
   });
 
   if (!response.ok) {
-    throw new Error(`dmap failed: ${await response.text()}`);
+    throw new Error(`fetch-each failed: ${await response.text()}`);
   }
 
   if (!response.body) {
     throw new Error("No response body");
   }
 
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-  let resultBuffer = "";
-  let collectingResult = false;
+  // const reader = response.body.getReader();
+  // const decoder = new TextDecoder();
+  // let buffer = "";
+  // let resultBuffer = "";
+  // let collectingResult = false;
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
+  // // while (true) {
+  // //   const { done, value } = await reader.read();
+  // //   if (done) break;
 
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() || "";
+  // //   buffer += decoder.decode(value, { stream: true });
+  // //   const lines = buffer.split("\n");
+  // //   buffer = lines.pop() || "";
 
-    for (const line of lines) {
-      if (line.startsWith("event: ")) {
-        const eventType = line.slice(7).trim();
+  // //   for (const line of lines) {
+  // //     if (line.startsWith("event: ")) {
+  // //       const eventType = line.slice(7).trim();
 
-        if (eventType === "result") {
-          collectingResult = true;
-          continue;
-        }
+  // //       if (eventType === "result") {
+  // //         collectingResult = true;
+  // //         continue;
+  // //       }
 
-        if (eventType === "update") {
-          const data = lines[lines.indexOf(line) + 1];
-          if (!data?.startsWith("data: ")) continue;
-          if (config.log) {
-            const result: Update = JSON.parse(data.slice(6));
-            config.log(result);
-          }
-        }
-      }
+  // //       if (eventType === "update") {
+  // //         const data = lines[lines.indexOf(line) + 1];
+  // //         if (!data?.startsWith("data: ")) continue;
+  // //         if (config.log) {
+  // //           const result: Update = JSON.parse(data.slice(6));
+  // //           config.log(result);
+  // //         }
+  // //       }
+  // //     }
 
-      if (collectingResult && line.startsWith("data: ")) {
-        resultBuffer += line.slice(6);
-        try {
-          const parsed = JSON.parse(resultBuffer);
-          return parsed.array;
-        } catch {
-          // Keep collecting if JSON is incomplete
-          continue;
-        }
-      }
-    }
-  }
-
-  throw new Error("Stream ended without complete result");
+  // //     if (collectingResult && line.startsWith("data: ")) {
+  // //       resultBuffer += line.slice(6);
+  // //       try {
+  // //         const parsed = JSON.parse(resultBuffer);
+  // //         return parsed.array;
+  // //       } catch {
+  // //         // Keep collecting if JSON is incomplete
+  // //         continue;
+  // //       }
+  // //     }
+  // //   }
+  // // }
+  return await response.json();
+  // throw new Error("Stream ended without complete result");
 };

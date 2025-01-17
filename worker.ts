@@ -58,8 +58,16 @@ const shouldRetry = (status: number, attempts: number): boolean => {
 
 export default {
   fetch: async (request: Request, env: Env) => {
-    if (request.method !== "POST") {
-      return new Response("Usage: POST / (array) => any[]");
+    // Handle OPTIONS request for CORS
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+      });
     }
 
     try {
@@ -87,7 +95,7 @@ export default {
         }),
       );
 
-      const QUEUE_COUNT = 100;
+      const QUEUE_COUNT = 1;
       const MAX_BATCH_SIZE = 6;
 
       // depending on the total requests that need to be done, we want to send so many in a batch
@@ -105,8 +113,10 @@ export default {
         promises.push(queue.sendBatch(chunk));
         q = (q + 1) % QUEUE_COUNT;
       }
+      console.log("queueing it up");
       // Await for that to be all done
       await Promise.all(promises);
+      console.log("queueing done");
 
       // Create Durable Object
       const doId = env.workflow_durable_object.idFromName(durableObjectName);
@@ -119,6 +129,8 @@ export default {
           headers: { accept: accept || "text/event-stream" },
         }),
       );
+
+      console.log("responses ready!");
 
       return response;
     } catch (e: any) {
@@ -146,6 +158,7 @@ export default {
           try {
             const { url, body, headers, method } = item;
             // execute request
+            console.log("fetching", url);
             const response = await fetch(url, {
               method: method ? method : body ? "POST" : "GET",
               headers,
@@ -162,8 +175,17 @@ export default {
               !shouldRetry(response.status, message.attempts);
 
             status = response.status;
-            const text = await response.text();
 
+            const responseType = response.headers
+              .get("content-type")
+              ?.split("/")[0];
+            if (responseType && ["image", "video"].includes(responseType)) {
+              done = true;
+              console.log("Responsetype is not waht we like");
+              return;
+            }
+            const text = await response.text();
+            console.log("fech-each done", url, done);
             response.headers.forEach(
               (value, key) => (responseHeaders[key] = value),
             );
@@ -283,6 +305,64 @@ export class WorkflowDurableObject extends DurableObject<Env> {
       // always stream, for now
       const isStream = request.headers.get("accept") === "text/event-stream";
 
+      if (!isStream) {
+        const url = new URL(request.url);
+        const count = Number(url.searchParams.get("count"));
+
+        let results;
+        let t = 0;
+
+        while (t <= 86400) {
+          // count done
+
+          // NB: can be expensive for large responses, so may be better to count statuses and 'done' in a query instead.
+          results = this.sql
+            .exec<ResponseItem>(`SELECT * FROM responses ORDER BY id ASC`)
+            .toArray();
+
+          // Count statuses
+          const status: { [key: string]: number } = {};
+          results.forEach((r) => {
+            status[r.status] = (status[r.status] || 0) + 1;
+          });
+
+          const r = results.filter((x) => x.done);
+
+          const newUpdateString = JSON.stringify({
+            type: "update",
+            status,
+            done: r.length,
+            results: r,
+          } satisfies Update);
+
+          const allDone = results!.filter((x) => x.done).length === count;
+
+          if (allDone) {
+            // Set alarm to delete DO after 1 hour
+            await this.state.storage.setAlarm(Date.now() + 3600000);
+            break;
+          }
+
+          t = t + 0.5;
+          await new Promise<void>((resolve) => setTimeout(resolve, 500));
+        }
+
+        const finalResults = this.sql
+          .exec<ResponseItem>(`SELECT * FROM responses ORDER BY id ASC`)
+          .toArray();
+
+        const resultArray = finalResults
+          .sort((a, b) => a.id - b.id)
+          .map((item) => ({
+            status: item.status,
+            error: item.error,
+            headers: tryParseJson(item.headers) || item.headers || undefined,
+            result: tryParseJson(item.result) || item.result || null,
+          }));
+        return new Response(JSON.stringify(resultArray), { status: 200 });
+      }
+
+      // stream
       return new Response(
         new ReadableStream({
           start: async (controller) => {

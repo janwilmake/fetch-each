@@ -1,0 +1,193 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Fetch-Each API",
+    "description": "API for executing multiple HTTP requests in parallel with retries and status tracking",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://fetch-each.actionschema.com",
+      "description": "Production server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/": {
+      "post": {
+        "summary": "Execute multiple HTTP requests in parallel",
+        "description": "Takes an array of request specifications and executes them in parallel with automatic retries and status tracking",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/RequestJson"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response with array of results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResponseItem"
+                  }
+                }
+              },
+              "text/event-stream": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["update", "result"]
+                    },
+                    "status": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    },
+                    "done": {
+                      "type": "number"
+                    },
+                    "error": {
+                      "type": "string"
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ResponseItem"
+                      }
+                    },
+                    "array": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ResponseItem"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RequestJson": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The URL to make the request to"
+          },
+          "body": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object"
+              }
+            ],
+            "description": "Request body (optional)"
+          },
+          "method": {
+            "type": "string",
+            "enum": ["GET", "POST", "DELETE", "PUT", "PATCH"],
+            "description": "HTTP method (defaults to POST if body is given, GET otherwise)"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Request headers (optional)"
+          }
+        },
+        "required": ["url"]
+      },
+      "ResponseItem": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "HTTP status code of the response"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if request failed"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Response headers"
+          },
+          "result": {
+            "description": "Response body (parsed as JSON if possible)",
+            "nullable": true
+          }
+        },
+        "required": ["status"]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Authentication using a bearer token that must match the server's SECRET environment variable"
+      }
+    }
+  }
+}

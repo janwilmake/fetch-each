@@ -1,11 +1,10 @@
-import { fetchEach } from "./mod";
 /** This function recursively goes into the queue as long as the resulting responses have more to do that wasn't already done */
 export const fetchLoop = async <T>(context: {
   urls: string[];
   maxDepth?: number;
   maxCount?: number;
   prefix?: string;
-  proxy: string;
+  proxy?: string;
   basePath: string;
   apiKey: string;
   headers?: { [name: string]: string };
@@ -27,7 +26,7 @@ export const fetchLoop = async <T>(context: {
     }
 
     const requests = urls.map((url) => ({
-      url: `${context.proxy}/${url}`,
+      url: context.proxy ? `${context.proxy}/${url}` : url,
       headers: context.headers,
     }));
     const { basePath, apiKey } = context;

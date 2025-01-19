@@ -1,4 +1,5 @@
 {
+  "main": "mod.ts",
   "scripts": {
     "publish": "npx jsr publish"
   },

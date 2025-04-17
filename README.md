@@ -4,6 +4,14 @@
 
 `fetch-each` uses [CloudFlare queues](https://developers.cloudflare.com/queues/) and [durable objects](https://developers.cloudflare.com/durable-objects/) to execute many HTTP requests in parallel while avoiding worker concurrency limits.
 
+
+## Tools
+
+- [![github.dev](https://www.google.com/s2/favicons?domain=github.dev&sz=16) github.dev](https://github.dev/janwilmake/fetch-each) - VSCode in the browser
+- [![uithub.com](https://www.google.com/s2/favicons?domain=uithub.com&sz=16) uithub.com](https://uithub.com/janwilmake/fetch-each) - prompt-friendly codebase
+- [![gitdiagram.com](https://www.google.com/s2/favicons?domain=gitdiagram.com&sz=16) gitdiagram.com](https://gitdiagram.com/janwilmake/fetch-each) - codebase to diagram
+
+
 ## Setup
 
 ### 1. Deploy Your Own Instance

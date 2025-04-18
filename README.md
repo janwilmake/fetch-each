@@ -1,6 +1,6 @@
 # `fetch-each` - Distributed HTTP requests using CloudFlare Workers
 
-[![janwilmake/fetch-each context](https://badge.forgithub.com//janwilmake/fetch-each)](https://uithub.com//janwilmake/fetch-each)
+[![janwilmake/fetch-each context](https://badge.forgithub.com/janwilmake/fetch-each)](https://uithub.com/janwilmake/fetch-each)
 
 > **Important**: Self-hosting on CloudFlare Workers is required to use this package.
 

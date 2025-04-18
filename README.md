@@ -1,5 +1,7 @@
 # `fetch-each` - Distributed HTTP requests using CloudFlare Workers
 
+[![janwilmake/fetch-each context](https://badge.forgithub.com/janwilmake/fetch-each/context)](https://uithub.com/janwilmake/fetch-each)
+
 > **Important**: Self-hosting on CloudFlare Workers is required to use this package.
 
 `fetch-each` uses [CloudFlare queues](https://developers.cloudflare.com/queues/) and [durable objects](https://developers.cloudflare.com/durable-objects/) to execute many HTTP requests in parallel while avoiding worker concurrency limits.
